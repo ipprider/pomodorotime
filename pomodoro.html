@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free Pomodoro Timer - Boost productivity with the Pomodoro Technique. 25-minute focus sessions followed by 5-minute breaks. Simple, effective time management tool.">
+    <meta name="keywords" content="pomodoro timer, productivity tool, time management, focus timer, pomodoro technique">
+    <meta name="author" content="timestdo.online">
+    <meta property="og:title" content="Pomodoro Timer - Boost Your Productivity">
+    <meta property="og:description" content="Free online Pomodoro Timer for better focus and productivity. 25 minutes work, 5 minutes break.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://timestdo.online">
+    <link rel="canonical" href="https://timestdo.online">
+    <title>Pomodoro Timer - Free Online Focus & Productivity Tool | timestdo.online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: #1d1d1f;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ff6b6b;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .tagline {
+            font-size: 0.85rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .timer-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 107, 107, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #ff6b6b;
+            font-size: 1.2rem;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Fullscreen mode */
+        .timer-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-width: 100%;
+            border-radius: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+        }
+
+        .timer-container.fullscreen .timer-display {
+            font-size: 8rem;
+        }
+
+        .timer-container.fullscreen h1 {
+            font-size: 3rem;
+        }
+
+        .timer-container.fullscreen .status {
+            font-size: 1.8rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #86868b;
+            margin-bottom: 2rem;
+        }
+
+        .timer-display {
+            font-size: 5rem;
+            font-weight: 300;
+            color: #ff6b6b;
+            margin: 2rem 0;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            transition: font-size 0.3s ease;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            color: #86868b;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: font-size 0.3s ease;
+        }
+
+        .status.work {
+            color: #ff6b6b;
+        }
+
+        .status.break {
+            color: #34c759;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #86868b;
+            box-shadow: 0 4px 15px rgba(134, 134, 139, 0.3);
+        }
+
+        button.secondary:hover {
+            background: #6e6e73;
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .music-upload-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 280px;
+        }
+
+        .upload-label {
+            font-size: 0.9rem;
+            color: #86868b;
+            font-weight: 500;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .file-input-label:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .music-info {
+            font-size: 0.85rem;
+            color: #515154;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            word-break: break-word;
+        }
+
+        .music-info.active {
+            color: #ff6b6b;
+            font-weight: 500;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .volume-control input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #d3d3d3;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+        }
+
+        .volume-control input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+            border: none;
+        }
+
+        .clear-music-btn {
+            background: #86868b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-music-btn:hover {
+            background: #6e6e73;
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin: 3rem auto;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
+        p {
+            color: #515154;
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+        }
+
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefits-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: #515154;
+            font-size: 1.05rem;
+        }
+
+        .benefits-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #34c759;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            text-align: center;
+            color: #86868b;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .tagline {
+                display: none;
+            }
+            
+            .logo {
+                font-size: 1.4rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.6rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .timer-display {
+                font-size: 3.5rem;
+            }
+
+            .timer-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .timer-container.fullscreen .timer-display {
+                font-size: 4.5rem;
+            }
+
+            .timer-container.fullscreen h1 {
+                font-size: 2rem;
+            }
+
+            .timer-container.fullscreen .status {
+                font-size: 1.3rem;
+            }
+
+            .info-section {
+                padding: 2rem 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 0.875rem 2rem;
+                font-size: 0.95rem;
+            }
+
+            .music-control {
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .music-upload-container {
+                max-width: 240px;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .timer-display {
+                font-size: 2.5rem;
+            }
+
+            .timer-container.fullscreen .timer-display {
+                font-size: 3.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <span class="logo-icon">🍅</span>
+                <span>PomodoroTime</span>
+            </div>
+            <div class="tagline">Focus • Work • Achieve</div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="timer-container" id="timerContainer">
+            <button class="fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
+            
+            <h1>Pomodoro Timer</h1>
+            <p class="subtitle">Stay focused, be productive</p>
+            
+            <div class="timer-display" id="timer">25:00</div>
+            <div class="status" id="status">Ready to focus</div>
+            
+            <div class="controls">
+                <button id="startBtn">Start</button>
+                <button id="resetBtn" class="secondary">Reset</button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>What is the Pomodoro Technique?</h2>
+            <p>The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. It uses a timer to break work into focused intervals, traditionally 25 minutes in length, separated by short breaks. Each interval is known as a "pomodoro," from the Italian word for tomato.</p>
+
+            <h2>How to Use This Timer</h2>
+            <p>Using our Pomodoro Timer is simple and effective. Click the "Start" button to begin your 25-minute focus session. When the timer reaches zero, you'll automatically enter a 5-minute break period. After completing your break, you can start another pomodoro cycle. Use the "Reset" button anytime to return to the starting position.</p>
+
+            <h2>Benefits of the Pomodoro Technique</h2>
+            <ul class="benefits-list">
+                <li>Improved focus and concentration during work sessions</li>
+                <li>Reduced mental fatigue through regular breaks</li>
+                <li>Better time awareness and estimation skills</li>
+                <li>Increased productivity and task completion rates</li>
+                <li>Reduced stress and anxiety about large projects</li>
+                <li>Enhanced work-life balance through structured time management</li>
+            </ul>
+
+            <h2>Tips for Maximum Productivity</h2>
+            <p>To get the most out of your Pomodoro sessions, eliminate distractions before starting. Turn off notifications, close unnecessary browser tabs, and inform colleagues you're in a focus period. During breaks, step away from your workspace, stretch, or take a short walk. Avoid checking emails or social media during breaks to allow your mind to truly rest.</p>
+
+            <h2>Why Choose Our Pomodoro Timer?</h2>
+            <p>Our timer is designed with simplicity and effectiveness in mind. It's completely free, works on all devices, and requires no registration. The clean, Apple-inspired interface minimizes distractions while providing all the functionality you need to master the Pomodoro Technique and boost your productivity.</p>
+
+            <h2>Custom Background Music Feature</h2>
+            <p>Make your focus sessions even more productive with personalized background music! Our timer allows you to upload your own MP3 audio files that will play automatically during your 25-minute work sessions. The music stops during break periods, helping you maintain clear boundaries between work and rest time.</p>
+            
+            <p><strong>How to use:</strong> Simply click the "Choose MP3" button in the bottom-right corner of the page, select your preferred audio file, and adjust the volume to your liking. Your music will automatically start when you begin a work session and pause during breaks.</p>
+            
+            <p><strong>Important notes:</strong></p>
+            <ul class="benefits-list">
+                <li>Supported formats: MP3, WAV, and OGG audio files</li>
+                <li>Your files stay completely private - all processing happens in your browser, no files are uploaded to any server</li>
+                <li>For best results, use standard MP3 files (44.1kHz, 128-320kbps bitrate)</li>
+                <li>If a file fails to load, try converting it using a free online audio converter</li>
+                <li>Choose instrumental or ambient music to avoid distraction from lyrics during focus time</li>
+                <li>The music loops automatically during your entire work session</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2024 timestdo.online - Your Free Pomodoro Timer for Better Productivity</p>
+    </footer>
+
+    <div class="music-control">
+        <div class="music-upload-container">
+            <div class="upload-label">🎵 Background Music (Work Only)</div>
+            
+            <div class="file-input-wrapper">
+                <input type="file" id="musicFile" accept="audio/*" aria-label="Choose music file">
+                <label for="musicFile" class="file-input-label">
+                    <span>📁 Choose MP3</span>
+                </label>
+            </div>
+            
+            <div class="music-info" id="musicInfo">No music selected</div>
+            
+            <div class="volume-control">
+                <span style="font-size: 0.85rem;">🔊</span>
+                <input type="range" id="musicVolume" min="0" max="100" value="50" aria-label="Music volume control">
+            </div>
+            
+            <button class="clear-music-btn" id="clearMusicBtn" style="display: none;">Clear Music</button>
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop></audio>
+
+    <script>
+        // Variables
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+        let isWorkSession = true;
+        let timerInterval;
+
+        let pomodoroCount = 0;
+        let totalFocusMinutes = 0;
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer');
+        const statusDisplay = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const timerContainer = document.getElementById('timerContainer');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const bgMusic = document.getElementById('bgMusic');
+        const musicInfo = document.getElementById('musicInfo');
+        const musicVolume = document.getElementById('musicVolume');
+        const clearMusicBtn = document.getElementById('clearMusicBtn');
+        const musicFile = document.getElementById('musicFile');
+
+        // Stats display
+        const statsContainer = document.createElement('div');
+        statsContainer.style.marginTop = '1.5rem';
+        statsContainer.style.display = 'flex';
+        statsContainer.style.flexDirection = 'column';
+        statsContainer.style.alignItems = 'center';
+        statsContainer.style.gap = '0.5rem';
+        timerContainer.appendChild(statsContainer);
+
+        const statsDisplay = document.createElement('div');
+        statsDisplay.id = 'statsDisplay';
+        statsDisplay.style.fontSize = '0.95rem';
+        statsDisplay.style.color = '#515154';
+        statsDisplay.style.fontWeight = '500';
+        statsContainer.appendChild(statsDisplay);
+
+        const resetStatsBtn = document.createElement('button');
+        resetStatsBtn.textContent = '🗑 Reset Stats';
+        resetStatsBtn.className = 'secondary';
+        resetStatsBtn.style.padding = '0.5rem 1rem';
+        resetStatsBtn.style.fontSize = '0.85rem';
+        resetStatsBtn.style.borderRadius = '50px';
+        resetStatsBtn.addEventListener('click', resetStats);
+        statsContainer.appendChild(resetStatsBtn);
+
+        let musicLoaded = false;
+
+        // Audio context for beep sounds
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Set initial music volume
+        bgMusic.volume = 0.5;
+
+        // Load stats from localStorage
+        function loadStats() {
+            const stored = JSON.parse(localStorage.getItem('pomodoroStats')) || {count: 0, minutes: 0};
+            pomodoroCount = stored.count;
+            totalFocusMinutes = stored.minutes;
+            updateStatsDisplay();
+        }
+
+        // Save stats to localStorage
+        function saveStats() {
+            localStorage.setItem('pomodoroStats', JSON.stringify({count: pomodoroCount, minutes: totalFocusMinutes}));
+        }
+
+        // Update stats display
+        function updateStatsDisplay() {
+            statsDisplay.textContent = `🏅 Completed: ${pomodoroCount} | ⏱ Focused: ${totalFocusMinutes} min`;
+        }
+
+        // Reset stats
+        function resetStats() {
+            if (confirm('Are you sure you want to clear all statistics?')) {
+                pomodoroCount = 0;
+                totalFocusMinutes = 0;
+                saveStats();
+                updateStatsDisplay();
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update status
+        function updateStatus() {
+            if (isWorkSession) {
+                statusDisplay.textContent = isRunning ? 'Focus time - Stay concentrated' : 'Ready to focus';
+                statusDisplay.className = 'status work';
+            } else {
+                statusDisplay.textContent = isRunning ? 'Break time - Relax and recharge' : 'Ready for a break';
+                statusDisplay.className = 'status break';
+            }
+        }
+
+        // Play beep sound
+        function playAceSound() {
+            const now = audioContext.currentTime;
+            const beepFrequency = 800;
+            const beepDuration = 0.15;
+            const gapDuration = 0.15;
+            const totalDuration = 5;
+            
+            const beepCycle = beepDuration + gapDuration;
+            const numBeeps = Math.floor(totalDuration / beepCycle);
+            
+            for (let i = 0; i < numBeeps; i++) {
+                const startTime = now + (i * beepCycle);
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(beepFrequency, startTime);
+                
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+                gainNode.gain.setValueAtTime(0.3, startTime + beepDuration - 0.02);
+                gainNode.gain.linearRampToValueAtTime(0, startTime + beepDuration);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + beepDuration);
+            }
+            
+            const finalStartTime = now + (numBeeps * beepCycle);
+            const finalOscillator = audioContext.createOscillator();
+            const finalGain = audioContext.createGain();
+            
+            finalOscillator.connect(finalGain);
+            finalGain.connect(audioContext.destination);
+            
+            finalOscillator.frequency.setValueAtTime(beepFrequency, finalStartTime);
+            
+            finalGain.gain.setValueAtTime(0, finalStartTime);
+            finalGain.gain.linearRampToValueAtTime(0.35, finalStartTime + 0.05);
+            finalGain.gain.setValueAtTime(0.35, finalStartTime + 0.8);
+            finalGain.gain.linearRampToValueAtTime(0, finalStartTime + 1);
+            
+            finalOscillator.start(finalStartTime);
+            finalOscillator.stop(finalStartTime + 1);
+        }
+
+        // Start/Pause timer
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.textContent = 'Pause';
+                updateStatus();
+                
+                // Play music only during work session
+                if (isWorkSession && musicLoaded) {
+                    bgMusic.play().catch(e => console.log('Music play failed:', e));
+                }
+                
+                // Enter fullscreen on start
+                if (!timerContainer.classList.contains('fullscreen')) {
+                    timerContainer.classList.add('fullscreen');
+                }
+                
+                hideNonFullscreenElements(true);
+                
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft < 0) timeLeft = 0;
+                    updateDisplay();
+                    
+                    if (timeLeft === 0) {
+                        playAceSound();
+                        
+                        if (isWorkSession) {
+                            // Update stats
+                            pomodoroCount++;
+                            totalFocusMinutes += 25;
+                            saveStats();
+                            updateStatsDisplay();
+                            
+                            // Work complete, start break
+                            timeLeft = 5 * 60;
+                            isWorkSession = false;
+                            statusDisplay.textContent = 'Work complete! Break started automatically';
+                            statusDisplay.className = 'status break';
+                            updateDisplay();
+                            
+                            // Stop music during break
+                            if (musicLoaded) {
+                                bgMusic.pause();
+                            }
+                            
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                new Notification('Pomodoro Timer', {
+                                    body: 'Work session complete! Break started ⏰',
+                                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23ff6b6b"/></svg>'
+                                });
+                            }
+                            
+                            setTimeout(() => {
+                                updateStatus();
+                            }, 2000);
+                        } else {
+                            // Break complete, stop
+                            clearInterval(timerInterval);
+                            isRunning = false;
+                            timeLeft = 25 * 60;
+                            isWorkSession = true;
+                            startBtn.textContent = 'Start';
+                            statusDisplay.textContent = 'Break complete! Ready for next session';
+                            statusDisplay.className = 'status work';
+                            updateDisplay();
+                            
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                new Notification('Pomodoro Timer', {
+                                    body: 'Break time is over! Ready to focus ⏰',
+                                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23ff6b6b"/></svg>'
+                                });
+                            }
+                        }
+                    }
+                }, 1000);
+            } else {
+                isRunning = false;
+                startBtn.textContent = 'Start';
+                clearInterval(timerInterval);
+                updateStatus();
+                
+                // Pause music
+                if (musicLoaded) {
+                    bgMusic.pause();
+                }
+            }
+        }
+
+        // Reset timer
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isWorkSession = true;
+            timeLeft = 25 * 60;
+            startBtn.textContent = 'Start';
+            updateDisplay();
+            updateStatus();
+            
+            // Stop music
+            if (musicLoaded) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+            }
+            
+            timerContainer.classList.remove('fullscreen');
+            hideNonFullscreenElements(false);
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            const entering = !timerContainer.classList.contains('fullscreen');
+            timerContainer.classList.toggle('fullscreen');
+            hideNonFullscreenElements(entering);
+        }
+
+        // Hide/show stats in fullscreen
+        function hideNonFullscreenElements(hide) {
+            const displayStyle = hide ? 'none' : '';
+            statsContainer.style.display = displayStyle;
+        }
+
+        // Load music file
+        function loadMusic(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (bgMusic.src && bgMusic.src.startsWith('blob:')) {
+                URL.revokeObjectURL(bgMusic.src);
+            }
+            
+            const url = URL.createObjectURL(file);
+            bgMusic.src = url;
+            
+            bgMusic.addEventListener('canplay', () => {
+                musicLoaded = true;
+                musicInfo.textContent = `✓ ${file.name}`;
+                musicInfo.classList.add('active');
+                clearMusicBtn.style.display = 'block';
+            }, { once: true });
+            
+            bgMusic.load();
+        }
+
+        // Clear music
+        function clearMusic() {
+            bgMusic.pause();
+            if (bgMusic.src && bgMusic.src.startsWith('blob:')) {
+                URL.revokeObjectURL(bgMusic.src);
+            }
+            bgMusic.removeAttribute('src');
+            bgMusic.load();
+            musicLoaded = false;
+            musicInfo.textContent = 'No music selected';
+            musicInfo.classList.remove('active');
+            clearMusicBtn.style.display = 'none';
+            musicFile.value = '';
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        musicFile.addEventListener('change', loadMusic);
+        clearMusicBtn.addEventListener('click', clearMusic);
+        
+        musicVolume.addEventListener('input', function() {
+            bgMusic.volume = this.value / 100;
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && timerContainer.classList.contains('fullscreen')) {
+                timerContainer.classList.remove('fullscreen');
+                hideNonFullscreenElements(false);
+            }
+        });
+
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Initialize
+        loadStats();
+        updateDisplay();
+        updateStatus();
+    </script>
+</body>
+</html>
